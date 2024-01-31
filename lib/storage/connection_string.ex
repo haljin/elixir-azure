@@ -12,11 +12,9 @@ defmodule Azure.Storage.ConnectionString do
   def parse(connection_string) do
     connection_string
     |> String.split(";")
-    |> Enum.reduce(%{}, fn key_value_string, acc ->
-      {key, value} = parse_connection_string_item(key_value_string)
-
-      Map.put(acc, key, value)
-    end)
+    |> Enum.map(&parse_connection_string_item/1)
+    |> Enum.reject(fn {a, _} -> is_nil(a) end)
+    |> Map.new()
   end
 
   defp parse_connection_string_item(item) do
@@ -31,4 +29,5 @@ defmodule Azure.Storage.ConnectionString do
   defp key_for("AccountName"), do: :account_name
   defp key_for("AccountKey"), do: :account_key
   defp key_for("EndpointSuffix"), do: :endpoint_suffix
+  defp key_for(_), do: nil
 end
